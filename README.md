@@ -7,6 +7,4 @@ possible because the function generates an ['almost' unique](https://crypto.stac
 
 # Requirements
 I am using the [Python 3.7](https://www.python.org/downloads/release/python-370/) IDLE.\
-Download project and run main.py to use.\
-Python 3.6 and Pygame 1.7.x or above is required.\
-You can download pygame either [here](https://www.pygame.org/download.shtml) or [here](https://bitbucket.org/pygame/pygame/downloads/).
+Python 3.6 is required.
