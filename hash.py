@@ -27,31 +27,32 @@ class SHA256:
             0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
             0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19)
 
-    def ShiftRight(self,x,b):
-        return ((x>>b)|(x<<(self.W-b)))&self.FF
+    def ShiftRight(self, x, b):
+        return ((x >> b) | (x << (self.W - b))) & self.FF
 
-    def Pad(self,W):      
-        return bytes(W,"ascii")+b"\x80"+(b"\x00"*((55 if (len(W)%64)<56 else 119)-(len(W)%64)))+((len(W)<<3).to_bytes(8,"big"))
+    def Pad(self, W):      
+        return bytes(W, "ascii") + b"\x80" + (b"\x00" * ((55 if (len(W) % 64) < 56 else 119) - (len(W) % 64))) + ((len(W) << 3).to_bytes(8, "big"))
 
-    def Compress(self,Wt,Kt,A,B,C,D,E,F,G,H):
-        return ((H+(self.ShiftRight(E,6)^self.ShiftRight(E,11)^self.ShiftRight(E,25))+((E&F)^(~E&G))+Wt+Kt)+(self.ShiftRight(A,2)^self.ShiftRight(A,13)^self.ShiftRight(A,22))+((A&B)^(A&C)^(B&C)))&self.FF,A,B,C,(D+(H+(self.ShiftRight(E,6)^self.ShiftRight(E,11)^self.ShiftRight(E,25))+((E&F)^(~E&G))+Wt+Kt))&self.FF,E,F,G
+    def Compress(self, Wt, Kt, A, B, C, D, E, F, G, H):
+        return ((H + (self.ShiftRight(E, 6) ^ self.ShiftRight(E, 11) ^ self.ShiftRight(E, 25)) + ((E & F) ^ (~E & G)) + Wt + Kt) + (self.ShiftRight(A, 2) ^ self.ShiftRight(A, 13) ^ self.ShiftRight(A, 22)) + ((A & B) ^ (A & C) ^ (B & C))) & self.FF, A, B, C, (D + (H + (self.ShiftRight(E, 6) ^ self.ShiftRight(E, 11) ^ self.ShiftRight(E, 25)) + ((E & F) ^ (~E & G)) + Wt + Kt)) & self.FF, E, F, G
 
-    def hash(self,message):
+    def hash(self, message):
         message = self.Pad(message)
         digest = list(self.compression_vals)
         
-        for i in range(0,len(message),64): 
-            S = message[i:i+64]
-            W = [int.from_bytes(S[e:e+4],"big") for e in range(0,64,4)]+([0]*48) 
+        for i in range(0, len(message), 64): 
+            S = message[i: i+64]
+            W = [int.from_bytes(S[e: e+4], "big") for e in range(0, 64, 4)] + ([0] * 48) 
 
             for j in range(16, 64):
-                W[j] = (W[j-16]+(self.ShiftRight(W[j-15],7)^self.ShiftRight(W[j-15],18)^(W[j-15]>>3))+W[j-7]+(self.ShiftRight(W[j-2],17)^self.ShiftRight(W[j-2],19)^(W[j-2]>>10)))&self.FF
+                W[j] = (W[j-16] + (self.ShiftRight(W[j-15], 7) ^ self.ShiftRight(W[j-15], 18) ^ (W[j-15] >> 3)) + W[j-7] + (self.ShiftRight(W[j-2], 17) ^ self.ShiftRight(W[j-2], 19) ^ (W[j-2] >> 10))) & self.FF
 
-            A,B,C,D,E,F,G,H = digest
+            A, B, C, D, E, F, G, H = digest
+            
             for j in range(64):
-                A,B,C,D,E,F,G,H = self.Compress(W[j],self.constants[j],A,B,C,D,E,F,G,H)
+                A, B, C, D, E, F, G, H = self.Compress(W[j], self.constants[j], A, B, C, D, E, F, G, H)
 
-        return "".join(format(h,"02x") for h in b"".join(d.to_bytes(4,"big") for d in [(x+y)&self.FF for x,y in zip(digest,(A,B,C,D,E,F,G,H))]))
+        return "".join(format(h, "02x") for h in b"".join(d.to_bytes(4, "big") for d in [(x+y) & self.FF for x, y in zip(digest, (A, B, C, D, E, F, G, H))]))
 
 def main():
     encoder = SHA256()
